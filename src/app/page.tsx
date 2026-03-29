@@ -1,65 +1,145 @@
-import Image from "next/image";
+import Link from "next/link";
+import PropertyCard from "@/components/PropertyCard";
+import AgentCard from "@/components/AgentCard";
+import { mockListings, mockAgents } from "@/lib/mock-data";
 
-export default function Home() {
+const propertyTypes = [
+  { label: "House", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" },
+  { label: "Apartment", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
+  { label: "Condo", icon: "M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" },
+  { label: "Townhouse", icon: "M3 12l2-2m0 0l3-3m-3 3v8a2 2 0 002 2h2m8-12l3 3m0 0l2 2m-2-2v8a2 2 0 01-2 2h-2m-4 0h4" },
+  { label: "Land", icon: "M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" },
+];
+
+const stats = [
+  { value: "10K+", label: "Listings" },
+  { value: "500+", label: "Verified Agents" },
+  { value: "5K+", label: "Properties Sold" },
+];
+
+export default function HomePage() {
+  const featured = mockListings.slice(0, 4);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div>
+      {/* Hero */}
+      <section className="relative bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-900 px-4 py-24 text-white sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl text-center">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+            Find Your Dream Property
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mx-auto mt-4 max-w-xl text-lg text-emerald-100">
+            Search from thousands of verified listings across the country
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+          {/* Search Bar */}
+          <form action="/listings" className="mx-auto mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row">
+            <input
+              type="text"
+              name="q"
+              placeholder="City, address, or keyword..."
+              className="flex-1 rounded-lg border-0 px-4 py-3 text-slate-900 placeholder-slate-400 shadow-lg focus:ring-2 focus:ring-emerald-400 focus:outline-none"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <select
+              name="type"
+              className="rounded-lg border-0 px-4 py-3 text-slate-700 shadow-lg focus:ring-2 focus:ring-emerald-400 focus:outline-none"
+            >
+              <option value="">All Types</option>
+              <option value="house">House</option>
+              <option value="apartment">Apartment</option>
+              <option value="condo">Condo</option>
+              <option value="townhouse">Townhouse</option>
+              <option value="land">Land</option>
+            </select>
+            <button
+              type="submit"
+              className="rounded-lg bg-amber-500 px-6 py-3 font-semibold text-white shadow-lg transition hover:bg-amber-600"
+            >
+              Search
+            </button>
+          </form>
         </div>
-      </main>
+      </section>
+
+      {/* Stats */}
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-4xl justify-center divide-x divide-slate-200 py-8">
+          {stats.map((s) => (
+            <div key={s.label} className="px-8 text-center">
+              <p className="text-2xl font-bold text-emerald-700">{s.value}</p>
+              <p className="mt-1 text-sm text-slate-500">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Featured Listings */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-slate-900">Featured Listings</h2>
+          <Link href="/listings" className="text-sm font-medium text-emerald-600 hover:text-emerald-700">
+            View all &rarr;
+          </Link>
+        </div>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {featured.map((listing) => (
+            <PropertyCard key={listing.id} property={listing} />
+          ))}
+        </div>
+      </section>
+
+      {/* Browse by Type */}
+      <section className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-center text-2xl font-bold text-slate-900">Browse by Type</h2>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            {propertyTypes.map((type) => (
+              <Link
+                key={type.label}
+                href={`/listings?type=${type.label.toLowerCase()}`}
+                className="flex w-32 flex-col items-center rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-emerald-300 hover:shadow-md"
+              >
+                <svg className="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d={type.icon} />
+                </svg>
+                <span className="mt-2 text-sm font-medium text-slate-700">{type.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Map Teaser */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-800 to-slate-700 p-8 text-white sm:p-12">
+          <div className="relative z-10">
+            <h2 className="text-2xl font-bold">Browse Properties on an Interactive Map</h2>
+            <p className="mt-2 max-w-lg text-slate-300">
+              Explore listings by location, see what&apos;s available in your favorite neighborhoods, and find the perfect property near you.
+            </p>
+            <Link
+              href="/map"
+              className="mt-4 inline-block rounded-lg bg-emerald-600 px-6 py-3 font-semibold text-white transition hover:bg-emerald-700"
+            >
+              Open Map View
+            </Link>
+          </div>
+          <div className="absolute -right-8 -top-8 h-48 w-48 rounded-full bg-emerald-600/20" />
+          <div className="absolute -bottom-4 right-16 h-32 w-32 rounded-full bg-emerald-600/10" />
+        </div>
+      </section>
+
+      {/* Top Agents */}
+      <section className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-center text-2xl font-bold text-slate-900">Top Agents</h2>
+          <div className="mt-8 grid gap-6 sm:grid-cols-3">
+            {mockAgents.map((agent) => (
+              <AgentCard key={agent.id} agent={agent} />
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

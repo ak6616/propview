@@ -1,17 +1,101 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import PhotoGallery from "@/components/PhotoGallery";
 import ContactFormModal from "@/components/ContactFormModal";
-import { mockListings, formatPrice, formatArea } from "@/lib/mock-data";
+import { formatPrice, formatArea } from "@/lib/mock-data";
+
+interface ListingData {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  propertyType: string;
+  status: string;
+  priceCents: string;
+  bedrooms: number;
+  bathrooms: number;
+  areaSqft: number;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  latitude: number | null;
+  longitude: number | null;
+  virtualTourUrl: string | null;
+  yearBuilt: number | null;
+  amenities: string[];
+  photos: { id: string; url: string; altText: string | null; isPrimary: boolean }[];
+  agent: {
+    id: string;
+    name: string;
+    phone: string | null;
+    email: string;
+    agencyName: string | null;
+    avatarUrl: string | null;
+    bio: string | null;
+  };
+}
+
+function buildVirtualTourEmbed(url: string): string | null {
+  // Matterport
+  if (url.includes("matterport.com")) {
+    return url.replace("/show/", "/show/");
+  }
+  // YouTube 360
+  if (url.includes("youtube.com") || url.includes("youtu.be")) {
+    const videoId = url.match(/(?:v=|youtu\.be\/)([^&?]+)/)?.[1];
+    if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+  }
+  return url;
+}
 
 export default function ListingDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const listing = mockListings.find((l) => l.slug === slug);
+  const [listing, setListing] = useState<ListingData | null>(null);
+  const [similar, setSimilar] = useState<ListingData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [showContact, setShowContact] = useState(false);
 
-  if (!listing) {
+  useEffect(() => {
+    async function fetchListing() {
+      try {
+        const res = await fetch(`/api/listings/${slug}`);
+        if (res.status === 404) {
+          setNotFound(true);
+          return;
+        }
+        const json = await res.json();
+        if (res.ok && json.data) {
+          setListing(json.data);
+
+          // Fetch similar listings from same city
+          const cityRes = await fetch(`/api/listings?city=${encodeURIComponent(json.data.city)}&limit=4`);
+          const cityJson = await cityRes.json();
+          if (cityRes.ok && cityJson.data) {
+            setSimilar(cityJson.data.listings.filter((l: ListingData) => l.id !== json.data.id).slice(0, 3));
+          }
+        }
+      } catch {
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchListing();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+      </div>
+    );
+  }
+
+  if (notFound || !listing) {
     return (
       <div className="flex flex-col items-center py-32 text-center">
         <h1 className="text-2xl font-bold text-slate-900">Property Not Found</h1>
@@ -23,7 +107,8 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
     );
   }
 
-  const similar = mockListings.filter((l) => l.id !== listing.id && l.city === listing.city).slice(0, 3);
+  const priceCents = Number(listing.priceCents);
+  const photos = listing.photos.map((p) => ({ url: p.url, alt: p.altText || listing.title, isPrimary: p.isPrimary }));
 
   const details = [
     { label: "Type", value: listing.propertyType },
@@ -44,7 +129,7 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
       </nav>
 
       {/* Photo Gallery */}
-      <PhotoGallery photos={listing.photos} />
+      <PhotoGallery photos={photos} />
 
       {/* Two-column layout */}
       <div className="mt-8 flex flex-col gap-8 lg:flex-row">
@@ -86,7 +171,7 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
                 <span className="ml-1 text-slate-500">sqft</span>
               </div>
             )}
-            {listing.yearBuilt > 0 && (
+            {listing.yearBuilt && listing.yearBuilt > 0 && (
               <div className="rounded-lg bg-slate-50 px-4 py-2 text-sm">
                 <span className="text-slate-500">Built</span>
                 <span className="ml-1 font-semibold text-slate-900">{listing.yearBuilt}</span>
@@ -131,32 +216,45 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
           {listing.virtualTourUrl && (
             <div className="mt-8">
               <h2 className="text-lg font-semibold text-slate-900">Virtual Tour</h2>
-              <div className="mt-3 flex aspect-video items-center justify-center rounded-xl bg-slate-100 text-slate-400">
-                <div className="text-center">
-                  <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  <p className="mt-2 text-sm">360&deg; Virtual Tour Available</p>
-                  <p className="mt-1 text-xs text-slate-300">Click and drag to look around</p>
-                </div>
+              <div className="mt-3 aspect-video overflow-hidden rounded-xl">
+                <iframe
+                  src={buildVirtualTourEmbed(listing.virtualTourUrl) || listing.virtualTourUrl}
+                  className="h-full w-full border-0"
+                  allowFullScreen
+                  allow="xr-spatial-tracking"
+                  title="Virtual Tour"
+                />
               </div>
             </div>
           )}
 
-          {/* Location Map placeholder */}
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold text-slate-900">Location</h2>
-            <div className="mt-3 flex aspect-[2/1] items-center justify-center rounded-xl bg-slate-100 text-slate-400">
-              <div className="text-center">
-                <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <p className="mt-2 text-sm">Google Maps integration</p>
-                <p className="mt-1 text-xs text-slate-300">Requires GOOGLE_MAPS_API_KEY</p>
+          {/* Location Map */}
+          {listing.latitude && listing.longitude && (
+            <div className="mt-8">
+              <h2 className="text-lg font-semibold text-slate-900">Location</h2>
+              <div className="mt-3 aspect-[2/1] overflow-hidden rounded-xl bg-slate-100">
+                {process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ? (
+                  <iframe
+                    src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}&q=${listing.latitude},${listing.longitude}&zoom=15`}
+                    className="h-full w-full border-0"
+                    allowFullScreen
+                    title="Property Location"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-slate-400">
+                    <div className="text-center">
+                      <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <p className="mt-2 text-sm">{listing.address}, {listing.city}, {listing.state}</p>
+                      <p className="mt-1 text-xs text-slate-300">Map requires NEXT_PUBLIC_GOOGLE_MAPS_KEY</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
 
           {/* Similar Properties */}
           {similar.length > 0 && (
@@ -170,7 +268,7 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
                     className="rounded-lg border border-slate-200 p-3 transition hover:shadow-md"
                   >
                     <div className="aspect-video rounded bg-slate-100" />
-                    <p className="mt-2 text-sm font-semibold text-emerald-700">{formatPrice(s.priceCents)}</p>
+                    <p className="mt-2 text-sm font-semibold text-emerald-700">{formatPrice(Number(s.priceCents))}</p>
                     <p className="truncate text-sm text-slate-600">{s.title}</p>
                     <p className="text-xs text-slate-400">
                       {s.bedrooms} bed{s.bedrooms !== 1 ? "s" : ""} &middot; {s.bathrooms} bath{s.bathrooms !== 1 ? "s" : ""}
@@ -185,7 +283,7 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
         {/* Sticky Sidebar */}
         <div className="shrink-0 lg:w-80">
           <div className="sticky top-20 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-3xl font-bold text-emerald-700">{formatPrice(listing.priceCents)}</p>
+            <p className="text-3xl font-bold text-emerald-700">{formatPrice(priceCents)}</p>
 
             <button
               onClick={() => setShowContact(true)}
@@ -215,24 +313,17 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
                 </div>
                 <div>
                   <p className="font-semibold text-slate-900">{listing.agent.name}</p>
-                  <p className="text-sm text-slate-500">{listing.agent.agencyName}</p>
+                  {listing.agent.agencyName && <p className="text-sm text-slate-500">{listing.agent.agencyName}</p>}
                 </div>
               </div>
-              <div className="mt-3 flex items-center gap-1 text-sm">
-                <svg className="h-4 w-4 fill-amber-400 text-amber-400" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <span className="font-medium">{listing.agent.rating}</span>
-                <span className="text-slate-400">({listing.agent.reviewCount} reviews)</span>
-              </div>
-              <p className="mt-2 text-sm text-slate-500">{listing.agent.phone}</p>
+              {listing.agent.phone && <p className="mt-2 text-sm text-slate-500">{listing.agent.phone}</p>}
             </div>
 
             {/* Mortgage Calculator */}
             <div className="mt-6 border-t border-slate-200 pt-6">
               <h3 className="text-sm font-semibold text-slate-900">Estimated Monthly Payment</h3>
               <p className="mt-1 text-2xl font-bold text-slate-700">
-                {formatPrice(Math.round(listing.priceCents * 0.005))}
+                {formatPrice(Math.round(priceCents * 0.005))}
                 <span className="text-sm font-normal text-slate-400">/mo</span>
               </p>
               <p className="mt-1 text-xs text-slate-400">Based on 20% down, 30yr fixed at 6.5%</p>
@@ -265,6 +356,7 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
       {showContact && (
         <ContactFormModal
           agent={listing.agent}
+          listingId={listing.id}
           propertyAddress={`${listing.address}, ${listing.city}`}
           onClose={() => setShowContact(false)}
         />

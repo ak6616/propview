@@ -1,7 +1,10 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import PropertyCard from "@/components/PropertyCard";
 import AgentCard from "@/components/AgentCard";
-import { mockListings, mockAgents } from "@/lib/mock-data";
+import { type Property, type AgentProfile } from "@/lib/mock-data";
 
 const propertyTypes = [
   { label: "House", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" },
@@ -18,7 +21,45 @@ const stats = [
 ];
 
 export default function HomePage() {
-  const featured = mockListings.slice(0, 4);
+  const [featured, setFeatured] = useState<Property[]>([]);
+  const [agents, setAgents] = useState<AgentProfile[]>([]);
+
+  useEffect(() => {
+    async function fetchFeatured() {
+      try {
+        const res = await fetch("/api/listings?limit=4");
+        const json = await res.json();
+        if (res.ok && json.data) {
+          setFeatured(json.data.listings.map((l: Record<string, unknown>) => ({
+            id: l.id,
+            slug: l.slug,
+            title: l.title,
+            description: l.description || "",
+            propertyType: l.propertyType,
+            status: l.status,
+            priceCents: Number(l.priceCents),
+            bedrooms: l.bedrooms ?? 0,
+            bathrooms: l.bathrooms ?? 0,
+            areaSqft: l.areaSqft ?? 0,
+            address: l.address,
+            city: l.city,
+            state: l.state,
+            zip: l.zip,
+            latitude: l.latitude ?? 0,
+            longitude: l.longitude ?? 0,
+            yearBuilt: l.yearBuilt ?? 0,
+            amenities: l.amenities ?? [],
+            photos: (l.photos as Array<Record<string, unknown>>) ?? [],
+            agent: l.agent ?? { id: "", name: "", email: "", phone: "", agencyName: "", avatarUrl: "", bio: "", listingCount: 0, rating: 0, reviewCount: 0 },
+            createdAt: l.createdAt as string,
+          })));
+        }
+      } catch {
+        // silently fail — homepage still renders static content
+      }
+    }
+    fetchFeatured();
+  }, []);
 
   return (
     <div>
@@ -81,11 +122,17 @@ export default function HomePage() {
             View all &rarr;
           </Link>
         </div>
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {featured.map((listing) => (
-            <PropertyCard key={listing.id} property={listing} />
-          ))}
-        </div>
+        {featured.length > 0 ? (
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {featured.map((listing) => (
+              <PropertyCard key={listing.id} property={listing} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-8 flex justify-center py-12">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+          </div>
+        )}
       </section>
 
       {/* Browse by Type */}
@@ -129,17 +176,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Top Agents */}
-      <section className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <h2 className="text-center text-2xl font-bold text-slate-900">Top Agents</h2>
-          <div className="mt-8 grid gap-6 sm:grid-cols-3">
-            {mockAgents.map((agent) => (
-              <AgentCard key={agent.id} agent={agent} />
-            ))}
+      {/* Top Agents — still uses agent data from listings since there's no /api/agents list endpoint */}
+      {agents.length > 0 && (
+        <section className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="text-center text-2xl font-bold text-slate-900">Top Agents</h2>
+            <div className="mt-8 grid gap-6 sm:grid-cols-3">
+              {agents.map((agent) => (
+                <AgentCard key={agent.id} agent={agent} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

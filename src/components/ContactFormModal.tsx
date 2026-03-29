@@ -1,16 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { type AgentProfile } from "@/lib/mock-data";
+
+interface AgentInfo {
+  id: string;
+  name: string;
+  phone?: string | null;
+  agencyName?: string | null;
+}
 
 interface Props {
-  agent: AgentProfile;
+  agent: AgentInfo;
   propertyAddress: string;
+  listingId: string;
   onClose: () => void;
 }
 
-export default function ContactFormModal({ agent, propertyAddress, onClose }: Props) {
+export default function ContactFormModal({ agent, propertyAddress, listingId, onClose }: Props) {
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -20,9 +29,37 @@ export default function ContactFormModal({ agent, propertyAddress, onClose }: Pr
     agreed: false,
   });
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          listingId,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          message: formData.message,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Failed to send message");
+        return;
+      }
+
+      setSubmitted(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -50,7 +87,7 @@ export default function ContactFormModal({ agent, propertyAddress, onClose }: Pr
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-900">{agent.name}</p>
-            <p className="text-xs text-slate-500">{agent.agencyName}</p>
+            {agent.agencyName && <p className="text-xs text-slate-500">{agent.agencyName}</p>}
           </div>
         </div>
 
@@ -65,6 +102,10 @@ export default function ContactFormModal({ agent, propertyAddress, onClose }: Pr
         ) : (
           <form onSubmit={handleSubmit} className="mt-4 space-y-3">
             <p className="text-xs text-slate-500">Re: {propertyAddress}</p>
+
+            {error && (
+              <div className="rounded-lg bg-red-50 p-2 text-sm text-red-700">{error}</div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-slate-700">Your Name *</label>
@@ -135,13 +176,16 @@ export default function ContactFormModal({ agent, propertyAddress, onClose }: Pr
             </label>
             <button
               type="submit"
-              className="w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+              disabled={loading}
+              className="w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
             >
-              Send Message
+              {loading ? "Sending..." : "Send Message"}
             </button>
-            <p className="text-center text-xs text-slate-400">
-              Or call directly: {agent.phone}
-            </p>
+            {agent.phone && (
+              <p className="text-center text-xs text-slate-400">
+                Or call directly: {agent.phone}
+              </p>
+            )}
           </form>
         )}
       </div>

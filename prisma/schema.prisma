@@ -1,0 +1,93 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [postgis]
+}
+
+model Agent {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  phone        String?
+  agencyName   String?  @map("agency_name")
+  avatarUrl    String?  @map("avatar_url")
+  bio          String?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  listings  Listing[]
+  inquiries Inquiry[]
+
+  @@map("agents")
+}
+
+model Listing {
+  id              String   @id @default(uuid()) @db.Uuid
+  agentId         String   @map("agent_id") @db.Uuid
+  title           String
+  slug            String   @unique
+  description     String
+  propertyType    String   @map("property_type")
+  status          String   @default("active")
+  priceCents      BigInt   @map("price_cents")
+  bedrooms        Int?
+  bathrooms       Decimal? @db.Decimal(3, 1)
+  areaSqft        Int?     @map("area_sqft")
+  address         String
+  city            String
+  state           String
+  zip             String
+  latitude        Float?
+  longitude       Float?
+  virtualTourUrl  String?  @map("virtual_tour_url")
+  yearBuilt       Int?     @map("year_built")
+  amenities       Json     @default("[]")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  agent     Agent          @relation(fields: [agentId], references: [id])
+  photos    ListingPhoto[]
+  inquiries Inquiry[]
+
+  @@index([status])
+  @@index([city])
+  @@index([priceCents])
+  @@index([agentId])
+  @@map("listings")
+}
+
+model ListingPhoto {
+  id        String   @id @default(uuid()) @db.Uuid
+  listingId String   @map("listing_id") @db.Uuid
+  url       String
+  altText   String?  @map("alt_text")
+  sortOrder Int      @default(0) @map("sort_order")
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@map("listing_photos")
+}
+
+model Inquiry {
+  id        String   @id @default(uuid()) @db.Uuid
+  listingId String   @map("listing_id") @db.Uuid
+  agentId   String   @map("agent_id") @db.Uuid
+  name      String
+  email     String
+  phone     String?
+  message   String
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  listing Listing @relation(fields: [listingId], references: [id])
+  agent   Agent   @relation(fields: [agentId], references: [id])
+
+  @@map("inquiries")
+}

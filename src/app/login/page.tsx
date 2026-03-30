@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, Suspense } from "react";
 
-export default function LoginPage() {
+function LoginFormInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") || "/portal";
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,7 +35,7 @@ export default function LoginPage() {
 
       localStorage.setItem("token", data.data.token);
       localStorage.setItem("agent", JSON.stringify(data.data.agent));
-      router.push("/portal");
+      router.push(next);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -131,7 +133,21 @@ export default function LoginPage() {
             Create one
           </Link>
         </p>
+
+        <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm">
+          <p className="mb-1 font-medium text-slate-600">Test credentials</p>
+          <p className="text-slate-500">Email: <span className="font-mono">test@propview.app</span></p>
+          <p className="text-slate-500">Password: <span className="font-mono">Test123!</span></p>
+        </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginFormInner />
+    </Suspense>
   );
 }

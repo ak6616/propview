@@ -296,7 +296,7 @@ export default function MapPage() {
               className="h-full w-full"
               defaultCenter={{ lat: 45.52, lng: -122.68 }}
               defaultZoom={11}
-              mapId="propview-map"
+              mapId="934898e84c64ef4c3fe620c1"
               gestureHandling="greedy"
               disableDefaultUI={false}
             >

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import DemoModeBanner from "@/components/demo-mode-banner";
 
 export const metadata: Metadata = {
   title: "PropView — Find Your Dream Property",
@@ -20,6 +21,7 @@ export default function RootLayout({
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
+      <DemoModeBanner />
       </body>
     </html>
   );

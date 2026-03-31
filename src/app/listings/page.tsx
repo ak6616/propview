@@ -29,8 +29,8 @@ export default function ListingsPage() {
     try {
       const res = await fetch(`/api/listings?${params}`);
       const json = await res.json();
-      if (res.ok && json.data) {
-        const mapped: Property[] = json.data.listings.map((l: Record<string, unknown>) => ({
+      if (res.ok && json.listings) {
+        const mapped: Property[] = json.listings.map((l: Record<string, unknown>) => ({
           id: l.id,
           slug: l.slug,
           title: l.title,
@@ -69,7 +69,7 @@ export default function ListingsPage() {
         }
 
         setListings(mapped);
-        setTotal(json.data.total);
+        setTotal(json.total);
       }
     } catch {
       // silently fail, show empty state

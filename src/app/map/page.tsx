@@ -220,10 +220,10 @@ export default function MapPage() {
   useEffect(() => {
     async function fetchListings() {
       try {
-        const res = await fetch("/api/listings?limit=50");
+        const res = await fetch("/api/listings?limit=200");
         const json = await res.json();
-        if (res.ok && json.data) {
-          setListings(json.data.listings);
+        if (res.ok && json.listings) {
+          setListings(json.listings);
         }
       } catch {
         // silently fail

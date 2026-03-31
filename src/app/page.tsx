@@ -22,6 +22,7 @@ const stats = [
 
 export default function HomePage() {
   const [featured, setFeatured] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const [agents, setAgents] = useState<AgentProfile[]>([]);
 
   useEffect(() => {
@@ -29,8 +30,8 @@ export default function HomePage() {
       try {
         const res = await fetch("/api/listings?limit=4");
         const json = await res.json();
-        if (res.ok && json.data) {
-          setFeatured(json.data.listings.map((l: Record<string, unknown>) => ({
+        if (res.ok && json.listings) {
+          setFeatured(json.listings.map((l: Record<string, unknown>) => ({
             id: l.id,
             slug: l.slug,
             title: l.title,
@@ -56,6 +57,8 @@ export default function HomePage() {
         }
       } catch {
         // silently fail — homepage still renders static content
+      } finally {
+        setLoading(false);
       }
     }
     fetchFeatured();
@@ -122,16 +125,18 @@ export default function HomePage() {
             View all &rarr;
           </Link>
         </div>
-        {featured.length > 0 ? (
+        {loading ? (
+          <div className="mt-8 flex justify-center py-12">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+          </div>
+        ) : featured.length > 0 ? (
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {featured.map((listing) => (
               <PropertyCard key={listing.id} property={listing} />
             ))}
           </div>
         ) : (
-          <div className="mt-8 flex justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
-          </div>
+          <p className="mt-8 text-center text-slate-500 py-12">No featured listings available right now. Check back soon!</p>
         )}
       </section>
 

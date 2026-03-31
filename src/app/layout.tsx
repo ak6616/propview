@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { DemoModeBanner } from "@/components/demo-mode-banner";
+import DemoModeBanner from "@/components/demo-mode-banner";
 
 export const metadata: Metadata = {
   title: "PropView — Find Your Dream Property",

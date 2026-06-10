@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { type Property, formatPrice, formatArea } from "@/lib/mock-data";
+import { resolveImg } from "@/lib/img";
 
 export default function PropertyCard({ property }: { property: Property }) {
   const primaryPhoto = property.photos.find((p) => p.isPrimary) ?? property.photos[0];
@@ -17,12 +18,13 @@ export default function PropertyCard({ property }: { property: Property }) {
     >
       {/* Photo */}
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-        <div className="flex h-full w-full items-center justify-center text-slate-400">
-          <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 22V12h6v10" />
-          </svg>
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={resolveImg(primaryPhoto?.url, 800, 500)}
+          alt={primaryPhoto?.alt || property.title}
+          loading="lazy"
+          className="h-full w-full object-cover transition group-hover:scale-105"
+        />
         <div className="absolute left-3 top-3">
           <span className={`rounded-full ${badgeColor} px-2.5 py-1 text-xs font-semibold text-white`}>
             {property.status === "active" ? "For Sale" : property.status === "pending" ? "Pending" : "Sold"}

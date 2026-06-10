@@ -68,14 +68,14 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
           return;
         }
         const json = await res.json();
-        if (res.ok && json.data) {
-          setListing(json.data);
+        if (res.ok && json.id) {
+          setListing(json);
 
           // Fetch similar listings from same city
-          const cityRes = await fetch(`/api/listings?city=${encodeURIComponent(json.data.city)}&limit=4`);
+          const cityRes = await fetch(`/api/listings?city=${encodeURIComponent(json.city)}&limit=4`);
           const cityJson = await cityRes.json();
-          if (cityRes.ok && cityJson.data) {
-            setSimilar(cityJson.data.listings.filter((l: ListingData) => l.id !== json.data.id).slice(0, 3));
+          if (cityRes.ok && cityJson.listings) {
+            setSimilar(cityJson.listings.filter((l: ListingData) => l.id !== json.id).slice(0, 3));
           }
         }
       } catch {

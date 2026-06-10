@@ -107,7 +107,7 @@ export default function NewListingPage() {
         return;
       }
 
-      const listingId = data.data.id;
+      const listingId = data.id;
 
       // Upload photos
       for (let i = 0; i < photos.length; i++) {

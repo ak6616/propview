@@ -33,8 +33,8 @@ export default function PortalListingsPage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const json = await res.json();
-        if (res.ok && json.data) {
-          setListings(json.data.listings);
+        if (res.ok && json.listings) {
+          setListings(json.listings);
         }
       } catch {
         // silently fail

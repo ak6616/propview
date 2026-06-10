@@ -41,8 +41,8 @@ export default function AgentProfilePage({ params }: { params: Promise<{ id: str
           return;
         }
         const json = await res.json();
-        if (res.ok && json.data) {
-          setAgent(json.data);
+        if (res.ok && json.id) {
+          setAgent(json);
         }
       } catch {
         setNotFound(true);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { resolveImg } from "@/lib/img";
 
 interface Photo {
   url: string;
@@ -22,11 +23,12 @@ export default function PhotoGallery({ photos }: { photos: Photo[] }) {
           onClick={() => setLightboxIndex(0)}
           className="relative col-span-1 row-span-2 aspect-[4/3] overflow-hidden rounded-l-xl bg-slate-100 md:col-span-2"
         >
-          <div className="flex h-full w-full items-center justify-center text-slate-300">
-            <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={resolveImg(primary?.url, 1200, 900)}
+            alt={primary?.alt || "Property photo"}
+            className="h-full w-full object-cover"
+          />
           <div className="absolute bottom-3 left-3">
             <span className="rounded-md bg-black/60 px-3 py-1.5 text-xs font-medium text-white">
               View All {photos.length} Photos
@@ -43,11 +45,12 @@ export default function PhotoGallery({ photos }: { photos: Photo[] }) {
               i === 1 ? "rounded-tr-xl" : i === 3 ? "rounded-br-xl" : ""
             }`}
           >
-            <div className="flex h-full w-full items-center justify-center text-slate-200">
-              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={resolveImg(photo.url, 500, 400)}
+              alt={photo.alt || "Property photo"}
+              className="h-full w-full object-cover"
+            />
           </button>
         ))}
       </div>
@@ -77,14 +80,12 @@ export default function PhotoGallery({ photos }: { photos: Photo[] }) {
           </button>
 
           <div className="mx-16 flex max-h-[80vh] max-w-4xl flex-col items-center">
-            <div className="flex h-96 w-full items-center justify-center rounded-lg bg-slate-800 text-slate-400">
-              <div className="text-center">
-                <svg className="mx-auto h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p className="mt-2 text-sm">{photos[lightboxIndex]?.alt}</p>
-              </div>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={resolveImg(photos[lightboxIndex]?.url, 1600, 1000)}
+              alt={photos[lightboxIndex]?.alt || "Property photo"}
+              className="max-h-[80vh] w-auto rounded-lg object-contain"
+            />
             <p className="mt-3 text-sm text-slate-400">
               {lightboxIndex + 1} / {photos.length}
             </p>

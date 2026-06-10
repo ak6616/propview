@@ -39,8 +39,8 @@ export default function LeadsPage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const json = await res.json();
-        if (res.ok && json.data) {
-          setLeads(json.data.leads);
+        if (res.ok && json.leads) {
+          setLeads(json.leads);
         }
       } catch {
         // silently fail

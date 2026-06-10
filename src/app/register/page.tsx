@@ -58,8 +58,8 @@ export default function RegisterPage() {
         return;
       }
 
-      localStorage.setItem("token", data.data.token);
-      localStorage.setItem("agent", JSON.stringify(data.data.agent));
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("agent", JSON.stringify(data.agent));
       router.push("/portal");
     } catch {
       setError("Something went wrong. Please try again.");
@@ -103,11 +103,11 @@ export default function RegisterPage() {
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-slate-700">Full Name</label>
-            <input id="name" type="text" required value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
+            <input id="name" type="text" required value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
           </div>
           <div>
             <label htmlFor="reg-email" className="block text-sm font-medium text-slate-700">Email</label>
-            <input id="reg-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
+            <input id="reg-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
           </div>
           <div>
             <label htmlFor="reg-password" className="block text-sm font-medium text-slate-700">Password</label>
@@ -117,7 +117,7 @@ export default function RegisterPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
             />
             {password && (
               <div className="mt-2 flex gap-1">
@@ -132,18 +132,18 @@ export default function RegisterPage() {
           </div>
           <div>
             <label htmlFor="confirm-password" className="block text-sm font-medium text-slate-700">Confirm Password</label>
-            <input id="confirm-password" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
+            <input id="confirm-password" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
           </div>
 
           {accountType === "agent" && (
             <>
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-slate-700">Phone</label>
-                <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
+                <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
               </div>
               <div>
                 <label htmlFor="agency" className="block text-sm font-medium text-slate-700">Agency Name</label>
-                <input id="agency" type="text" value={agencyName} onChange={(e) => setAgencyName(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
+                <input id="agency" type="text" value={agencyName} onChange={(e) => setAgencyName(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
               </div>
             </>
           )}

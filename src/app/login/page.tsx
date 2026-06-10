@@ -33,8 +33,8 @@ function LoginFormInner() {
         return;
       }
 
-      localStorage.setItem("token", data.data.token);
-      localStorage.setItem("agent", JSON.stringify(data.data.agent));
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("agent", JSON.stringify(data.agent));
       router.push(next);
     } catch {
       setError("Something went wrong. Please try again.");
@@ -66,7 +66,7 @@ function LoginFormInner() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
             />
           </div>
           <div>
@@ -81,7 +81,7 @@ function LoginFormInner() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 pr-10 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 pr-10 text-sm text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
               />
               <button
                 type="button"
@@ -136,8 +136,8 @@ function LoginFormInner() {
 
         <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm">
           <p className="mb-1 font-medium text-slate-600">Test credentials</p>
-          <p className="text-slate-500">Email: <span className="font-mono">test@propview.app</span></p>
-          <p className="text-slate-500">Password: <span className="font-mono">Test123!</span></p>
+          <p className="text-slate-500">Email: <span className="font-mono">jan.kowalski@propview.pl</span></p>
+          <p className="text-slate-500">Password: <span className="font-mono">Demo123!</span></p>
         </div>
       </div>
     </div>

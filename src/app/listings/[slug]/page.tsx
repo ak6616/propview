@@ -5,6 +5,7 @@ import Link from "next/link";
 import PhotoGallery from "@/components/PhotoGallery";
 import ContactFormModal from "@/components/ContactFormModal";
 import { formatPrice, formatArea } from "@/lib/mock-data";
+import { resolveImg } from "@/lib/img";
 
 interface ListingData {
   id: string;
@@ -269,7 +270,11 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
                     href={`/listings/${s.slug}`}
                     className="rounded-lg border border-slate-200 p-3 transition hover:shadow-md"
                   >
-                    <div className="aspect-video rounded bg-slate-100" />
+                    <img
+                      src={resolveImg(s.photos?.[0]?.url, 500, 400)}
+                      alt={s.title}
+                      className="aspect-video w-full rounded bg-slate-100 object-cover"
+                    />
                     <p className="mt-2 text-sm font-semibold text-emerald-700">{formatPrice(Number(s.priceCents))}</p>
                     <p className="truncate text-sm text-slate-600">{s.title}</p>
                     <p className="text-xs text-slate-400">

@@ -69,7 +69,21 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
         }
         const json = await res.json();
         if (res.ok && json.id) {
-          setListing(json);
+          // `amenities` is a Json column that the seed stored as a JSON-encoded
+          // string, so Prisma returns a string here, not an array. Normalise it.
+          const amenities: string[] = Array.isArray(json.amenities)
+            ? json.amenities
+            : typeof json.amenities === "string"
+              ? (() => {
+                  try {
+                    const parsed = JSON.parse(json.amenities);
+                    return Array.isArray(parsed) ? parsed : [];
+                  } catch {
+                    return [];
+                  }
+                })()
+              : [];
+          setListing({ ...json, amenities });
 
           // Fetch similar listings from same city
           const cityRes = await fetch(`/api/listings?city=${encodeURIComponent(json.city)}&limit=4`);

@@ -247,25 +247,13 @@ export default function ListingDetailPage({ params }: { params: Promise<{ slug: 
             <div className="mt-8">
               <h2 className="text-lg font-semibold text-slate-900">Location</h2>
               <div className="mt-3 aspect-[2/1] overflow-hidden rounded-xl bg-slate-100">
-                {process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ? (
-                  <iframe
-                    src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}&q=${listing.latitude},${listing.longitude}&zoom=15`}
-                    className="h-full w-full border-0"
-                    allowFullScreen
-                    title="Property Location"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-slate-400">
-                    <div className="text-center">
-                      <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <p className="mt-2 text-sm">{listing.address}, {listing.city}, {listing.state}</p>
-                      <p className="mt-1 text-xs text-slate-300">Map requires NEXT_PUBLIC_GOOGLE_MAPS_KEY</p>
-                    </div>
-                  </div>
-                )}
+                {/* OpenStreetMap embed — keyless, no Google Maps Platform required */}
+                <iframe
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${listing.longitude - 0.008},${listing.latitude - 0.005},${listing.longitude + 0.008},${listing.latitude + 0.005}&layer=mapnik&marker=${listing.latitude},${listing.longitude}`}
+                  className="h-full w-full border-0"
+                  loading="lazy"
+                  title={`Location: ${listing.address}, ${listing.city}`}
+                />
               </div>
             </div>
           )}
